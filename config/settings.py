@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
     # THIRD PARTY LIBRARIES
     'rest_framework',
+    'rest_framework_simplejwt',
 
     # LOCAL APPS
     'common',
