@@ -91,16 +91,15 @@ class User(AbstractUser, BaseModel):
             "refresh": str(refresh)
         }
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(User, self).save(*args, **kwargs)
+
     def clean(self):
         self.check_username()
         self.check_email()
         self.check_pass()
         self.hashing_password()
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.clean()
-        super(User, self).save(*args, **kwargs)
 
 
 PHONE_EXPIRE = 2
