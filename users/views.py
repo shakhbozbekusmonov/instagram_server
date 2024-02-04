@@ -1,14 +1,19 @@
 from datetime import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from common.utility import send_email, send_phone_code
+from common.utility import send_email, send_phone_code, check_email_or_phone
 from .models import User, DONE, CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE
-from .serializers import SignUpSerializer, ChangeUserInfoSerializer
+from .serializers import SignUpSerializer, ChangeUserInfoSerializer, ChangeUserPhotoSerializer, LoginSerializer, \
+    LoginRefreshSerializer, LogoutSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
 
 
 class SignUpAPIView(CreateAPIView):
@@ -97,7 +102,7 @@ class ChangeUserInfoAPIView(UpdateAPIView):
         super(ChangeUserInfoAPIView, self).update(request, *args, **kwargs)
         data = {
             "success": True,
-            "message": "User updated successfully",
+            "message": "User muvaffaqiyatli o'zgartirildi",
             "auth_status": self.request.user.auth_status,
         }
         return Response(data, status=200)
@@ -106,8 +111,106 @@ class ChangeUserInfoAPIView(UpdateAPIView):
         super(ChangeUserInfoAPIView, self).partial_update(request, *args, **kwargs)
         data = {
             "success": True,
-            "message": "User updated successfully",
+            "message": "User muvaffaqiyatli o'zgartirildi",
             "auth_status": self.request.user.auth_status,
         }
         return Response(data, status=200)
 
+
+class ChangeUserPhotoAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        serializer = ChangeUserPhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            serializer.update(user, serializer.validated_data)
+            return Response(
+                {
+                    "message": "Rasm muvaffaqiyatli o'zgartirildi"
+                },
+                status=200
+            )
+        return Response(
+            serializer.errors, status=400
+        )
+
+
+class LoginAPIView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+
+
+class LoginRefreshAPIView(TokenRefreshView):
+    serializer_class = LoginRefreshSerializer
+
+
+class LogOutAPIView(APIView):
+    serializer_class = LogoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            refresh_token = self.request.data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            data = {
+                "success": True,
+                "message": "Muvaffaqiyatli logout"
+            }
+            return Response(data, status=205)
+        except TokenError:
+            return Response(status=400)
+
+
+class ForgotPasswordAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_classes = ForgotPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_classes(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        email_or_phone = serializer.validated_data.get('email_or_phone')
+        user = serializer.validated_data.get('user')
+        if check_email_or_phone(email_or_phone) == "phone":
+            code = user.create_verify_code(VIA_PHONE)
+            send_phone_code(email_or_phone, code)
+        elif check_email_or_phone(email_or_phone) == "email":
+            code = user.create_verify_code(VIA_EMAIL)
+            send_email(email_or_phone, code)
+
+        return Response(
+            {
+                "success": True,
+                "message": "Tasdiqlash kodi muvaffaqiyatli yuborildi",
+                "access": user.token()['access'],
+                "refresh": user.token()['refresh'],
+                "auth_status": user.auth_status
+            },
+            status=200
+        )
+
+
+class ResetPasswordAPIView(UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ResetPasswordSerializer
+    http_method_names = ['put', 'patch']
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        response = super(ResetPasswordAPIView, self).update(request, *args, **kwargs)
+        try:
+            user = User.objects.get(id=response.data.get('id'))
+        except ObjectDoesNotExist as e:
+            raise NotFound(detail='User topilmadi')
+        return Response(
+            {
+                "success": True,
+                "message": "Parolingiz muvaffaqiyatli o'zgartirildi",
+                "access": user.token()['access'],
+                "refresh": user.token()['refresh']
+            }
+        )

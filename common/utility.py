@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 email_regex = re.compile(r"[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+")
 phone_regex = re.compile(r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$")
+username_regex = re.compile(r"^[a-z0-9_-]{3,15}$")
 
 
 def check_email_or_phone(email_or_phone):
@@ -33,6 +34,21 @@ def check_email_or_phone(email_or_phone):
         raise ValidationError(data)
 
     return email_or_phone
+
+
+def check_user_type(user_input):
+    if re.fullmatch(email_regex, user_input):
+        user_input = "email"
+    elif re.fullmatch(phone_regex, user_input):
+        user_input = "phone"
+    elif re.fullmatch(username_regex, user_input):
+        user_input = "username"
+    else:
+        data = {
+            "message": "Email, username yoki telefon raqamingiz noto'g'ri"
+        }
+        raise ValidationError(data)
+    return user_input
 
 
 class EmailThread(threading.Thread):

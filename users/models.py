@@ -11,7 +11,7 @@ from common.models import BaseModel
 
 ORDINARY_USER, MANAGER, ADMIN, SUPER_ADMIN = ('ordinary_user', 'manager', 'admin', 'super_admin')
 VIA_PHONE, VIA_EMAIL = ('via_phone', 'via_email')
-NEW, CODE_VERIFIED, DONE, PHOTO_STEP = ('new', 'code_verified', 'done', 'photo_step')
+NEW, CODE_VERIFIED, DONE, PHOTO_DONE = ('new', 'code_verified', 'done', 'photo_done')
 # MALE, FEMALE = ('male', 'female')
 
 
@@ -30,7 +30,7 @@ class User(AbstractUser, BaseModel):
         (NEW, NEW),
         (CODE_VERIFIED, CODE_VERIFIED),
         (DONE, DONE),
-        (PHOTO_STEP, PHOTO_STEP)
+        (PHOTO_DONE, PHOTO_DONE)
     )
     # GENDER_CHOICES = (
     #     (MALE, MALE),
