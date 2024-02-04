@@ -122,10 +122,9 @@ class UserConfirmation(BaseModel):
         return str(self.user.__str__())
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            if self.verify_type == VIA_EMAIL:
-                self.expiration_time = datetime.now() + timedelta(minutes=EMAIL_EXPIRE)
-            else:
-                self.expiration_time = datetime.now() + timedelta(minutes=PHONE_EXPIRE)
+        if self.verify_type == VIA_EMAIL:
+            self.expiration_time = datetime.now() + timedelta(minutes=EMAIL_EXPIRE)
+        else:
+            self.expiration_time = datetime.now() + timedelta(minutes=PHONE_EXPIRE)
         super(UserConfirmation, self).save(*args, **kwargs)
 
