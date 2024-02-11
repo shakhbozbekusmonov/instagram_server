@@ -41,10 +41,11 @@ class PostLike(BaseModel):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
 
     class Meta:
-        constrains = [
-             UniqueConstraint(
-                 fields=['author', 'post']
-             )
+        constraints = [
+          UniqueConstraint(
+              fields=['author', 'post'],
+              name='postLikeUnique'
+          )
         ]
 
 
@@ -53,8 +54,9 @@ class CommentLike(BaseModel):
     comment = models.ForeignKey(PostComment, on_delete=models.CASCADE, related_name='likes')
 
     class Meta:
-        constrains = [
-             UniqueConstraint(
-                 fields=['author', 'comment']
-             )
+        constraints = [
+          UniqueConstraint(
+              fields=['author', 'comment'],
+              name='CommentLikeUnique'
+          )
         ]
