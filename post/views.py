@@ -5,13 +5,13 @@ from rest_framework.views import APIView
 
 from .models import Post, PostLike, PostComment, CommentLike
 from .serializers import PostSerializer, PostLikeSerializer, CommentSerializer, CommentLikeSerializer
-# from common.custom_pagination import CustomPagination
+from common.custom_pagination import CustomPagination
 
 
 class PostListApiView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [AllowAny, ]
-    # pagination_class = CustomPagination
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         return Post.objects.all()
@@ -79,7 +79,7 @@ class CommentListCreateApiView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, ]
     queryset = PostComment.objects.all()
-    # pagination_class = CustomPagination
+    pagination_class = CustomPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
