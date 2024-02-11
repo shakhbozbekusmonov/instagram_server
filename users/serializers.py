@@ -13,6 +13,14 @@ from .models import User, VIA_PHONE, VIA_EMAIL, NEW, CODE_VERIFIED, DONE, PHOTO_
 from rest_framework import serializers
 
 
+class UserSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'photo')
+
+
 class SignUpSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
 
@@ -72,7 +80,8 @@ class SignUpSerializer(serializers.ModelSerializer):
 
         return data
 
-    def validate_email_phone_number(self, value):
+    @staticmethod
+    def validate_email_phone_number(value):
         value = value.lower()
         if value and User.objects.filter(email=value).exists():
             data = {
@@ -118,7 +127,8 @@ class ChangeUserInfoSerializer(serializers.Serializer):
 
         return attrs
 
-    def validate_username(self, username):
+    @staticmethod
+    def validate_username(username):
         if len(username) < 5 or len(username) > 30:
             raise ValidationError(
                 {
@@ -134,7 +144,8 @@ class ChangeUserInfoSerializer(serializers.Serializer):
 
         return username
 
-    def validate_first_name(self, first_name):
+    @staticmethod
+    def validate_first_name(first_name):
         if len(first_name) < 5 or len(first_name) > 30:
             raise ValidationError(
                 {
@@ -150,7 +161,8 @@ class ChangeUserInfoSerializer(serializers.Serializer):
 
         return first_name
 
-    def validate_last_name(self, last_name):
+    @staticmethod
+    def validate_last_name(last_name):
         if len(last_name) < 5 or len(last_name) > 30:
             raise ValidationError(
                 {
@@ -253,7 +265,8 @@ class LoginSerializer(TokenObtainPairSerializer):
         data['full_name'] = self.user.full_name
         return data
 
-    def get_user(self, **kwargs):
+    @staticmethod
+    def get_user(**kwargs):
         users = User.objects.filter(**kwargs)
         if not users.exists():
             raise ValidationError(
