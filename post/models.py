@@ -21,6 +21,9 @@ class Post(BaseModel):
         verbose_name = 'post'
         verbose_name_plural = 'posts'
 
+    def __str__(self):
+        return f"{self.author} post about {self.caption}"
+
 
 class PostComment(BaseModel):
     comment = models.TextField()
@@ -34,6 +37,9 @@ class PostComment(BaseModel):
         null=True,
         blank=True
     )
+
+    def __str__(self):
+        return f"comment by {self.author}"
 
 
 class PostLike(BaseModel):
