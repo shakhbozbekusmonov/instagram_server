@@ -146,6 +146,9 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost',
     'http://127.0.0.1',
+    'http://127.0.0.1:5500',
+    'http://4da4-81-95-239-216.ngrok-free.app',
+    'https://4da4-81-95-239-216.ngrok-free.app'
 ]
 
 CORS_ALLOW_METHODS = [
@@ -168,30 +171,30 @@ SWAGGER_SETTINGS = {
     'api_version': '1',
     'SHOW_REQUEST_HEADERS': True,
     'SECURITY_DEFINITIONS': {
-            'Bearer': {
-                'type': 'apiKey',
-                'name': 'Authorization',
-                'in': 'header',
-            },
-            'basic': {
-                'type': 'basic'
-            }
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
         },
+        'basic': {
+            'type': 'basic'
+        }
+    },
     'SUPPORTED_SUBMIT_METHODS': [
-            'get',
-            'post',
-            'put',
-            'patch'
-            'delete',
-        ],
+        'get',
+        'post',
+        'put',
+        'patch'
+        'delete',
+    ],
 }
 
 # REST_FRAMEWORK
 auth_list = [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+]
 if not DEBUG:
     auth_list = [
         'rest_framework_simplejwt.authentication.JWTAuthentication',

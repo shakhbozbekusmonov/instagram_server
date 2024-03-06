@@ -9,9 +9,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.models import BaseModel
 
-ORDINARY_USER, MANAGER, ADMIN, SUPER_ADMIN = ('ordinary_user', 'manager', 'admin', 'super_admin')
+ORDINARY_USER, MANAGER, ADMIN, SUPER_ADMIN = (
+    'ordinary_user', 'manager', 'admin', 'super_admin')
 VIA_PHONE, VIA_EMAIL = ('via_phone', 'via_email')
-NEW, CODE_VERIFIED, DONE, PHOTO_DONE = ('new', 'code_verified', 'done', 'photo_done')
+NEW, CODE_VERIFIED, DONE, PHOTO_DONE = (
+    'new', 'code_verified', 'done', 'photo_done')
 # MALE, FEMALE = ('male', 'female')
 
 
@@ -37,14 +39,18 @@ class User(AbstractUser, BaseModel):
     #     (FEMALE, FEMALE)
     # )
 
-    user_roles = models.CharField(max_length=31, choices=USER_ROLES_CHOICES, default=ORDINARY_USER)
+    user_roles = models.CharField(
+        max_length=31, choices=USER_ROLES_CHOICES, default=ORDINARY_USER)
     auth_type = models.CharField(max_length=31, choices=AUTH_TYPE_CHOICES)
-    auth_status = models.CharField(max_length=31, choices=AUTH_STATUS_CHOICES, default=NEW)
+    auth_status = models.CharField(
+        max_length=31, choices=AUTH_STATUS_CHOICES, default=NEW)
     # gender = models.CharField(max_length=31, choices=GENDER_CHOICES)
     email = models.EmailField(null=True, blank=True, unique=True)
-    phone_number = models.CharField(max_length=13, null=True, blank=True, unique=True)
+    phone_number = models.CharField(
+        max_length=13, null=True, blank=True, unique=True)
     photo = models.ImageField(upload_to='user/photos', null=True, blank=True,
-                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])]
+                              validators=[FileExtensionValidator(
+                                  allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])]
                               )
 
     def __str__(self):
@@ -114,7 +120,8 @@ class UserConfirmation(BaseModel):
 
     code = models.CharField(max_length=4)
     verify_type = models.CharField(max_length=31, choices=TYPE_CHOICES)
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='verify_codes')
+    user = models.ForeignKey(
+        'users.User', on_delete=models.CASCADE, related_name='verify_codes')
     expiration_time = models.DateTimeField(null=True)
     is_confirmed = models.BooleanField(default=False)
 
@@ -127,4 +134,3 @@ class UserConfirmation(BaseModel):
         else:
             self.expiration_time = datetime.now() + timedelta(minutes=PHONE_EXPIRE)
         super(UserConfirmation, self).save(*args, **kwargs)
-

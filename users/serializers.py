@@ -26,7 +26,8 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super(SignUpSerializer, self).__init__(*args, **kwargs)
-        self.fields['email_phone_number'] = serializers.CharField(required=False)
+        self.fields['email_phone_number'] = serializers.CharField(
+            required=False)
 
     class Meta:
         model = User
@@ -47,7 +48,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             send_email(user.email, code)
         elif user.auth_type == VIA_PHONE:
             code = user.create_verify_code(VIA_PHONE)
-            send_phone_code(user.phone_number, code)
+            send_email(user.phone_number, code)
         user.save()
         return user
 
@@ -180,8 +181,10 @@ class ChangeUserInfoSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
 
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name)
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
         instance.username = validated_data.get('username', instance.username)
         instance.password = validated_data.get('password', instance.password)
 
@@ -212,7 +215,8 @@ class LoginSerializer(TokenObtainPairSerializer):
     def __init__(self, *args, **kwargs):
         super(LoginSerializer, self).__init__(*args, **kwargs)
         self.fields['user_input'] = serializers.CharField(required=True)
-        self.fields['username'] = serializers.CharField(required=False, read_only=True)
+        self.fields['username'] = serializers.CharField(
+            required=False, read_only=True)
 
     def auth_validate(self, data):
         user_input = data.get('user_input')
@@ -304,7 +308,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
                     "message": "Email yoki telefon raqam kiritishi shart!"
                 }
             )
-        user = User.objects.filter(Q(phone_number=email_or_phone) | Q(email=email_or_phone))
+        user = User.objects.filter(
+            Q(phone_number=email_or_phone) | Q(email=email_or_phone))
         if not user.exists():
             raise NotFound(detail="User not found")
         attrs['user'] = user.first()
@@ -313,8 +318,10 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
-    password = serializers.CharField(min_length=8, required=True, write_only=True)
-    confirm_password = serializers.CharField(min_length=8, required=True, write_only=True)
+    password = serializers.CharField(
+        min_length=8, required=True, write_only=True)
+    confirm_password = serializers.CharField(
+        min_length=8, required=True, write_only=True)
 
     class Meta:
         model = User
